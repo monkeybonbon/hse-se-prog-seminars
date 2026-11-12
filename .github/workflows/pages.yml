@@ -1,0 +1,75 @@
+name: Publish notes and submissions
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      # Always build trusted main, including manual runs. Student branches are API data only.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: site/public/toolchain
+          key: c-toolchain-v2-site-0ca413907c0472fe04687037895378a6c51ff5b4
+      - run: npm run toolchain
+      - run: npm run content
+      - uses: actions/cache/restore@v4
+        with:
+          path: site/public/submissions.json
+          key: submissions-site-${{ github.run_id }}
+          restore-keys: submissions-site-
+      - run: npm run collect
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/cache/save@v4
+        with:
+          path: site/public/submissions.json
+          key: submissions-site-${{ github.run_id }}
+      - run: npm test
+      - name: Build for Pages subpath
+        shell: bash
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          if [[ "$REPO_NAME" == *.github.io ]]; then export BASE_PATH=/; else export BASE_PATH="/$REPO_NAME/"; fi
+          npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

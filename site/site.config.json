@@ -1,0 +1,8 @@
+{
+  "title": "C · конспекты",
+  "repository": "monkeybonbon/hse-se-prog-seminars",
+  "branchPattern": "^BPI[0-9]+_[A-Za-z]+$",
+  "executionTimeoutMs": 10000,
+  "compilationTimeoutMs": 120000,
+  "reportStaleMinutes": 45
+}
