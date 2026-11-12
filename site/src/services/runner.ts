@@ -1,5 +1,5 @@
 import config from '../../site.config.json';
-export type RunnerEvent = { type: string; text?: string; stream?: 'stdout' | 'stderr'; message?: string; exitCode?: number; compilationFailed?: boolean };
+export type RunnerEvent = { type: string; text?: string; stream?: 'stdout' | 'stderr'; message?: string; elapsedMs?: number; exitCode?: number; compilationFailed?: boolean };
 export function runC(source: string, stdin: string, onEvent: (event: RunnerEvent) => void) {
   const worker = new Worker(`${import.meta.env.BASE_URL}c-worker.mjs`, { type: 'module' });
   let ended = false;
@@ -15,6 +15,12 @@ export function runC(source: string, stdin: string, onEvent: (event: RunnerEvent
     if (data.type === 'running') deadline(config.executionTimeoutMs, `Превышено время выполнения (${config.executionTimeoutMs / 1000} с). Программа остановлена.`);
     if (data.type === 'done' || data.type === 'error') finish();
     onEvent(data);
+  };
+  worker.onmessageerror = () => {
+    if (!ended) {
+      finish();
+      onEvent({ type: 'error', message: 'Ошибка обмена сообщениями с компилятором (messageerror).' });
+    }
   };
   worker.onerror = event => { event.preventDefault(); if (!ended) { finish(); onEvent({ type: 'error', message: event.message || 'Не удалось загрузить компилятор. Выполните npm run toolchain.' }); } };
   worker.postMessage({ source, stdin });

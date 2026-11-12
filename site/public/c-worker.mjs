@@ -2,6 +2,13 @@
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 const emit = (type, fields = {}) => self.postMessage({ type, ...fields });
+let lastStage = 'создание worker';
+const startedAt = performance.now();
+function stage(message) {
+  lastStage = message;
+  emit('progress', { message, elapsedMs: Math.round(performance.now() - startedAt) });
+}
+
 
 function mountArchive(fs, bytes) {
   const string = (offset, length) => decoder.decode(bytes.subarray(offset, offset + length)).split('\0')[0];
@@ -26,27 +33,42 @@ function mountArchive(fs, bytes) {
 }
 
 async function fetchBytes(url) {
-  const response = await fetch(url, { signal: AbortSignal.timeout(90000) });
+  const response = await fetch(url, { signal: AbortSignal.timeout(90000), cache: 'force-cache' });
   if (!response.ok) throw new Error(`Не удалось загрузить ${url}: HTTP ${response.status}. Выполните npm run toolchain.`);
   return new Uint8Array(await response.arrayBuffer());
 }
 
 async function tool(factory, args, input, output, archive, wasm) {
   let diagnostics = '';
+  stage(`${typeof input === 'string' ? 'Clang' : 'LLD'}: инициализация WebAssembly`);
   const module = await factory({
     noInitialRun: true, wasmBinary: wasm, thisProgram: typeof input === 'string' ? 'clang' : 'wasm-ld',
     print: line => { diagnostics += line + '\n'; },
     printErr: line => { diagnostics += line + '\n'; },
     // Emscripten's default quit() calls process.exit in Node; retain browser-like behavior in tests.
-    quit: (_status, error) => { throw error; },
+    quit: (status, error) => { throw error ?? { status }; },
   });
+  stage(`${typeof input === 'string' ? 'Clang' : 'LLD'}: подключение sysroot`);
   mountArchive(module.FS, archive);
   module.FS.mkdirTree('/work');
   module.FS.writeFile('/work/main.' + (typeof input === 'string' ? 'c' : 'o'), typeof input === 'string' ? encoder.encode(input) : input);
   let status = 0;
+  stage(`${typeof input === 'string' ? 'Clang' : 'LLD'}: выполнение`);
   try { status = module.callMain(args) ?? 0; }
-  catch (error) { if (typeof error.status === 'number') status = error.status; else if (typeof error === 'number') status = error; else throw new Error(`${diagnostics}\n${error.message || String(error)}`, { cause: error }); }
-  return { status, diagnostics, bytes: status === 0 ? module.FS.readFile(output).slice() : null };
+  catch (error) {
+    // Emscripten reports a normal process exit as a thrown ExitStatus. Some
+    // builds invoke quit(status) without an Error object; both are valid.
+    if (typeof error?.status === 'number') status = error.status;
+    else if (typeof error === 'number') status = error;
+    else throw new Error(`${diagnostics}\n${error?.message || String(error)}`, { cause: error });
+  }
+  stage(`${typeof input === 'string' ? 'Clang' : 'LLD'}: завершён (код ${status})`);
+  let bytes = null;
+  if (status === 0) {
+    try { bytes = module.FS.readFile(output).slice(); }
+    catch (error) { throw new Error(`Компилятор завершился без выходного файла ${output}: ${error?.message || error}`); }
+  }
+  return { status, diagnostics, bytes };
 }
 
 class ProgramExit { constructor(code) { this.code = code; } }
@@ -116,11 +138,13 @@ async function execute(wasm, stdin) {
     },
     sched_yield() { return 0; },
   };
+  stage('WASI: подготовка WebAssembly');
   const module = await WebAssembly.compile(wasm);
   for (const descriptor of WebAssembly.Module.imports(module)) {
     if (descriptor.module !== 'wasi_snapshot_preview1') throw new Error(`Недопустимый импорт: ${descriptor.module}.${descriptor.name}`);
     if (!wasi[descriptor.name]) wasi[descriptor.name] = () => 52; // NOSYS
   }
+  stage('WASI: создание экземпляра программы');
   instance = await WebAssembly.instantiate(module, { wasi_snapshot_preview1: wasi });
   emit('running');
   let code = 0;
@@ -137,10 +161,12 @@ self.onmessage = async ({ data }) => {
   try {
     emit('loading');
     const base = new URL('./toolchain/', import.meta.url);
+    stage('Загрузка Clang, LLD и стандартной библиотеки C');
     const [clang, lld, archive, clangWasm, lldWasm] = await Promise.all([
       import(new URL('clang.mjs', base)), import(new URL('lld.mjs', base)),
       fetchBytes(new URL('sysroot.tar', base)), fetchBytes(new URL('clang.wasm', base)), fetchBytes(new URL('lld.wasm', base)),
     ]);
+    stage('Компоненты компилятора загружены');
     emit('compiling');
     const object = await tool(clang.default, [
       '--target=wasm32-wasi', '--sysroot=/sysroot', '-resource-dir=/sysroot/lib/clang/18',
@@ -148,6 +174,7 @@ self.onmessage = async ({ data }) => {
     ], data.source, '/work/main.o', archive, clangWasm);
     if (object.diagnostics) emit('diagnostics', { text: object.diagnostics });
     if (object.status !== 0) { emit('done', { exitCode: object.status, compilationFailed: true }); return; }
+    stage('Компиляция завершена, запуск линковщика');
     const linked = await tool(lld.default, [
       '--threads=1', '/sysroot/lib/wasm32-wasi/crt1.o', '/work/main.o', '-L/sysroot/lib/wasm32-wasi',
       '-lc', '-lm', '/sysroot/lib/clang/18/lib/wasi/libclang_rt.builtins-wasm32.a',
@@ -155,7 +182,11 @@ self.onmessage = async ({ data }) => {
     ], object.bytes, '/work/main.wasm', archive, lldWasm);
     if (linked.diagnostics) emit('diagnostics', { text: linked.diagnostics });
     if (linked.status !== 0) { emit('done', { exitCode: linked.status, compilationFailed: true }); return; }
+    stage('Линковка завершена, запуск программы');
     const exitCode = await execute(linked.bytes, data.stdin || '');
     emit('done', { exitCode });
-  } catch (error) { emit('diagnostics', { text: error.stack || String(error) }); emit('error', { message: `Ошибка: ${error.message || String(error)}` }); }
+  } catch (error) {
+    emit('diagnostics', { text: `Этап: ${lastStage}\n${error?.stack || String(error)}` });
+    emit('error', { message: `Ошибка на этапе «${lastStage}»: ${error?.message || String(error)}` });
+  }
 };

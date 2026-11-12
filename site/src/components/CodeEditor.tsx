@@ -59,6 +59,7 @@ export function CodeEditor({ source, notePath, blockId }: { source: string; note
   function onEvent(event: RunnerEvent) {
     if (event.type === 'loading') setStatus('Загрузка компилятора…');
     if (event.type === 'compiling') setStatus('Компиляция…');
+    if (event.type === 'progress' && event.message) setStatus(`${event.message}${event.elapsedMs !== undefined ? ` · ${(event.elapsedMs / 1000).toFixed(1)} с` : ''}`);
     if (event.type === 'running') setStatus('Выполнение…');
     if (event.type === 'output') {
       (event.stream === 'stderr' ? setStderr : setStdout)(value => value + event.text);
@@ -76,7 +77,7 @@ export function CodeEditor({ source, notePath, blockId }: { source: string; note
     if (busy) return;
     setStdout(''); setStderr(''); setDiagnostics(''); setOutputTab('stdout'); setBusy(true);
     try { stop.current = runC(latestCode.current, stdin, onEvent); }
-    catch (error) { setStatus(String(error)); setBusy(false); }
+    catch (error) { setStatus(String(error)); setBusy(false); stop.current = null; }
   }
   startRef.current = start;
   function reset() {
