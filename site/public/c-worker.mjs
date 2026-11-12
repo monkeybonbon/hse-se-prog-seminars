@@ -32,10 +32,45 @@ function mountArchive(fs, bytes) {
   }
 }
 
-async function fetchBytes(url) {
-  const response = await fetch(url, { signal: AbortSignal.timeout(90000), cache: 'force-cache' });
-  if (!response.ok) throw new Error(`Не удалось загрузить ${url}: HTTP ${response.status}. Выполните npm run toolchain.`);
-  return new Uint8Array(await response.arrayBuffer());
+async function fetchBytes(url, label) {
+  const timeoutMs = 180000;
+  const resource = label || new URL(url).pathname.split('/').pop();
+  stage(`Загрузка ${resource}: соединение`);
+  let response;
+  try {
+    response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), cache: 'force-cache' });
+    if (!response.ok) throw new Error(`${resource}: HTTP ${response.status} (${url}). Проверьте публикацию toolchain на GitHub Pages.`);
+    const total = Number(response.headers.get('content-length')) || 0;
+    if (!response.body) {
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      stage(`${resource}: загружено ${(bytes.length / 1048576).toFixed(1)} МиБ`);
+      return bytes;
+    }
+    const reader = response.body.getReader();
+    const chunks = [];
+    let received = 0;
+    let lastNotice = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      received += value.length;
+      if (performance.now() - lastNotice > 1500) {
+        stage(`${resource}: ${(received / 1048576).toFixed(1)}${total ? ` / ${(total / 1048576).toFixed(1)}` : ''} МиБ`);
+        lastNotice = performance.now();
+      }
+    }
+    const result = new Uint8Array(received);
+    let pos = 0;
+    for (const chunk of chunks) { result.set(chunk, pos); pos += chunk.length; }
+    stage(`${resource}: загружено ${(received / 1048576).toFixed(1)} МиБ`);
+    return result;
+  } catch (error) {
+    if (error?.name === 'TimeoutError' || error?.name === 'AbortError') {
+      throw new Error(`Истекло время загрузки ${resource} (${timeoutMs / 1000} с). Проверьте вкладку Network и доступность ${url}.`, { cause: error });
+    }
+    throw error;
+  }
 }
 
 async function tool(factory, args, input, output, archive, wasm) {
@@ -162,9 +197,16 @@ self.onmessage = async ({ data }) => {
     emit('loading');
     const base = new URL('./toolchain/', import.meta.url);
     stage('Загрузка Clang, LLD и стандартной библиотеки C');
-    const [clang, lld, archive, clangWasm, lldWasm] = await Promise.all([
+    // Download resources first so an individual slow/missing file is identifiable.
+    // Loading the two ES modules is separate from fetching the large binary payloads.
+    const [archive, clangWasm, lldWasm] = await Promise.all([
+      fetchBytes(new URL('sysroot.tar', base), 'sysroot.tar'),
+      fetchBytes(new URL('clang.wasm', base), 'clang.wasm'),
+      fetchBytes(new URL('lld.wasm', base), 'lld.wasm'),
+    ]);
+    stage('Загрузка модулей Clang и LLD');
+    const [clang, lld] = await Promise.all([
       import(new URL('clang.mjs', base)), import(new URL('lld.mjs', base)),
-      fetchBytes(new URL('sysroot.tar', base)), fetchBytes(new URL('clang.wasm', base)), fetchBytes(new URL('lld.wasm', base)),
     ]);
     stage('Компоненты компилятора загружены');
     emit('compiling');
