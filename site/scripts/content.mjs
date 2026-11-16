@@ -21,8 +21,24 @@ export function extractMetadata(raw, file) {
 }
 function plainText(node) { return node.value ?? node.children?.map(plainText).join('') ?? ''; }
 
-export function compileMarkdown(markdown, current, documents, assets, warn = console.warn) {
+// Task numbers are authored in headings, not inferred from student branches.
+export function taskIdsFromMarkdown(markdown) {
+  const ids = [];
+  visit(parser.parse(markdown), 'heading', node => {
+    const match = plainText(node).match(/^(?:Задание\s+)?([1-9]\d*(?:\.\d+)*)(?:[.)]?(?:\s|$))/i);
+    if (match && !ids.includes(match[1])) ids.push(match[1]);
+  });
+  return ids;
+}
+
+export function compileMarkdown(markdown, current, documents, assets, warn = console.warn, { title } = {}) {
   const tree = parser.parse(markdown);
+  if (title && !(tree.children[0]?.type === 'heading' && tree.children[0].depth === 1 && plainText(tree.children[0]) === title)) {
+    if (tree.children.some(node => node.type === 'heading' && node.depth === 1)) {
+      visit(tree, 'heading', node => { node.depth = Math.min(6, node.depth + 1); });
+    }
+    tree.children.unshift({ type: 'heading', depth: 1, children: [{ type: 'text', value: title }] });
+  }
   const headings = [];
   const slugger = new GithubSlugger();
   const ids = new Set();
@@ -30,17 +46,18 @@ export function compileMarkdown(markdown, current, documents, assets, warn = con
   function resolve(target, isImage = false) {
     if (/^(?:[a-z][\w+.-]*:|\/\/)/i.test(target)) return target;
     const [rawPath, anchor = ''] = target.split('#');
-    let requested;
-    try { requested = decodeURIComponent(rawPath).normalize('NFC'); } catch { requested = rawPath; }
-    if (!requested) return `#${slug(decodeURIComponent(anchor))}`;
+    const decode = value => { try { return decodeURIComponent(value); } catch { return value; } };
+    const normalize = value => value.normalize('NFC');
+    const requested = normalize(decode(rawPath).replaceAll('\\', '/'));
+    if (!requested) return `#${slug(decode(anchor))}`;
     const relative = path.posix.normalize(path.posix.join(path.posix.dirname(current), requested));
     const candidates = isImage ? assets : documents;
     const wanted = requested.replace(/\.md$/i, '');
-    const exact = candidates.find(item => item.path === relative || item.path === `${relative}.md` || item.path === requested || item.path === `${requested}.md`);
-    const byName = candidates.filter(item => path.posix.basename(item.path, '.md') === wanted || item.title === wanted || path.posix.basename(item.path) === requested);
+    const exact = candidates.find(item => [relative, `${relative}.md`, requested, `${requested}.md`].includes(normalize(item.path)));
+    const byName = candidates.filter(item => normalize(path.posix.basename(item.path, '.md')) === wanted || normalize(item.title || '') === wanted || normalize(path.posix.basename(item.path)) === requested);
     const found = exact || (byName.length === 1 ? byName[0] : null);
     if (!found) { warn(`[content] ${current}: unresolved or ambiguous link "${target}"`); return target; }
-    const suffix = anchor ? `#${slug(decodeURIComponent(anchor))}` : '';
+    const suffix = anchor ? `#${slug(decode(anchor))}` : '';
     return isImage ? `__CONTENT_ASSET__/${encodePath(found.path)}` : `#${topicRoute(found.path)}${suffix}`;
   }
   visit(tree, node => {

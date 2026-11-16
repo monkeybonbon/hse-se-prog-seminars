@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm, readFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { compileMarkdown, extractMetadata } from '../scripts/content.mjs';
+import { compileMarkdown, extractMetadata, taskIdsFromMarkdown } from '../scripts/content.mjs';
 import { generateContent } from '../scripts/generate-content-manifest.mjs';
 
 test('Obsidian and relative links, Unicode, anchors, images, literal code and diagnostics', () => {
@@ -57,4 +57,59 @@ test('build discovers added/renamed/deleted topics and assets without changing M
     assert.deepEqual(manifest.seminars[0].topics.map(topic => topic.title), ['Добавлено', 'Новый конспект']);
     await assert.rejects(readFile(path.join(root, 'public/content/seminar-04/assets/рисунок.txt')), /ENOENT/);
   } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('Obsidian vault: sem ranges, filenames as titles, shared media, tasks and automatic additions', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'c-vault-'));
+  try {
+    const notes = path.join(root, 'notes');
+    for (const folder of ['АиАЯ/sem1-2', 'АиАЯ/sem3', 'АиАЯ/sem4', '0 media', 'seminar-01/topics']) await mkdir(path.join(notes, folder), { recursive: true });
+    const source = '# Формат\n\n![[Pasted image 123.png]]\n\n[[Переменные]]\n\n![Ещё](../../0%20media/Pasted%20image%20123.png)\n';
+    await writeFile(path.join(notes, 'АиАЯ/sem1-2/printf, scanf.md'), source);
+    await writeFile(path.join(notes, 'АиАЯ/sem1-2/Переменные.md'), 'Обычный текст');
+    await writeFile(path.join(notes, 'АиАЯ/sem3/0 tasks.md'), '# 1 (1б)\n\nПервое\n\n# 2 (0,5 б)\n\nВторое');
+    await writeFile(path.join(notes, 'АиАЯ/sem3/Циклы.md'), '# while\n\n```c\nint main(void) { return 0; }\n```\n\n# for');
+    await writeFile(path.join(notes, 'АиАЯ/sem3/Пустая заметка.md'), '');
+    await writeFile(path.join(notes, 'АиАЯ/sem4/0 tasks.md'), '# 1.1 (0.5 б)\n\nВопрос\n\n# 1.2 (1б)\n\nВопрос\n\n# 2 (1б)\n\nВопрос');
+    await writeFile(path.join(notes, '0 media/Pasted image 123.png'), 'image');
+    await writeFile(path.join(notes, 'seminar-01/topics/demo.md'), '# Demo');
+    const warnings = [];
+    let { seminars } = await generateContent({ root, warn: warning => warnings.push(warning) });
+    assert.deepEqual(seminars.map(item => item.id), ['seminar-01-02', 'seminar-03', 'seminar-04']);
+    assert.equal(seminars[0].title, 'Семинары 1–2');
+    const printing = seminars[0].topics.find(item => item.title === 'printf, scanf');
+    assert.ok(printing.markdown.startsWith('# printf, scanf\n'));
+    assert.ok(printing.markdown.includes('## Формат'));
+    assert.ok(printing.markdown.includes('__CONTENT_ASSET__/0%20media/Pasted%20image%20123.png'));
+    assert.ok(printing.markdown.includes('#/notes/'));
+    assert.deepEqual(seminars[1].topics.map(item => item.title), ['Пустая заметка', 'Циклы']);
+    assert.equal(seminars[1].tasks.path, 'АиАЯ/sem3/0 tasks.md');
+    assert.deepEqual(seminars[1].taskIds, ['1', '2']);
+    assert.deepEqual(seminars[2].taskIds, ['1.1', '1.2', '2']);
+    assert.equal(seminars[2].taskCount, 3);
+    assert.equal(await readFile(path.join(notes, 'АиАЯ/sem1-2/printf, scanf.md'), 'utf8'), source);
+    assert.equal(await readFile(path.join(root, 'public/content/0 media/Pasted image 123.png'), 'utf8'), 'image');
+    assert.deepEqual(warnings, []);
+    await mkdir(path.join(notes, 'АиАЯ/sem10'));
+    await writeFile(path.join(notes, 'АиАЯ/sem10/Новая тема.md'), '# Раздел');
+    await rm(path.join(notes, 'АиАЯ/sem3/Пустая заметка.md'));
+    ({ seminars } = await generateContent({ root }));
+    assert.equal(seminars.at(-1).title, 'Семинар 10');
+    assert.equal(seminars.at(-1).topics[0].title, 'Новая тема');
+    assert.deepEqual(seminars[1].topics.map(item => item.title), ['Циклы']);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('task numbering comes only from headings and ignores code examples', () => {
+  assert.deepEqual(taskIdsFromMarkdown('# Задания\n\n# 1.1 (0.5 б)\n\n# 1.2 (1 б)\n\n# 2. Массив\n\n```text\n# 99\n```'), ['1.1', '1.2', '2']);
+  const compiled = compileMarkdown('# Тема\n\n## Раздел', 'АиАЯ/sem3/Тема.md', [], [], () => {}, { title: 'Тема' });
+  assert.equal(compiled.headings.filter(heading => heading.depth === 1).length, 1);
+  assert.equal(compiled.headings[1].depth, 2);
+});
+
+test('link resolution normalizes Unicode without renaming files on disk', () => {
+  const file = 'АиАЯ/sem3/й.md'.normalize('NFD');
+  const compiled = compileMarkdown('[[й]]\n\n![[мой рисунок.png]]', 'АиАЯ/sem3/Начало.md', [{ path: file, title: 'й' }], [{ path: '0 media/мой рисунок.png'.normalize('NFD') }], warning => assert.fail(warning));
+  assert.ok(compiled.markdown.includes('#/notes/'));
+  assert.ok(compiled.markdown.includes('__CONTENT_ASSET__/0%20media/'));
 });

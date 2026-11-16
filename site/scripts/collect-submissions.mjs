@@ -45,7 +45,7 @@ export async function submissionPaths(api, commitSha) {
     if (!tree || tree.truncated) throw new Error('Incomplete submissions tree');
     for (const entry of tree.tree) {
       const full = `${item.prefix}/${entry.path}`;
-      if (entry.type === 'tree' && item.prefix === 'submissions' && /^seminar-\d+$/.test(entry.path)) queue.push({ sha: entry.sha, prefix: full });
+      if (entry.type === 'tree' && item.prefix === 'submissions' && /^seminar-\d+(?:-\d+)?$/.test(entry.path)) queue.push({ sha: entry.sha, prefix: full });
       if (entry.type === 'blob' && entry.mode !== '120000') paths.push(full);
     }
   }
@@ -85,9 +85,10 @@ export async function collectSubmissions({ api, config, seminars, roster = [], n
         const { paths, commit } = await submissionPaths(api, branch.commit.sha);
         student.lastCommitAt = commit.committer?.date || commit.author?.date || null;
         for (const file of paths.filter(file => file.startsWith('submissions/'))) {
-          const match = file.match(/^submissions\/(seminar-\d+)\/([1-9]\d*)\.c$/);
+          const match = file.match(/^submissions\/(seminar-\d+(?:-\d+)?)\/([1-9]\d*(?:\.\d+)*)\.c$/);
           const seminar = match && seminars.find(item => item.id === match[1]);
-          if (match && seminar && Number(match[2]) <= seminar.taskCount) student.submissions[seminar.id].push(`${match[2]}.c`);
+          const expected = seminar && (seminar.taskIds || Array.from({ length: seminar.taskCount }, (_, i) => String(i + 1)));
+          if (match && expected?.includes(match[2])) student.submissions[seminar.id].push(`${match[2]}.c`);
           else if (file !== 'submissions/README.md') warnings.push(`${branch.name}: unexpected file ${file}`);
         }
       } catch (error) { student.status = 'unavailable'; warnings.push(`${branch.name}: ${error.message}`); }

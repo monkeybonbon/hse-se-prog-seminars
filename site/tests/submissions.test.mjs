@@ -66,3 +66,16 @@ test('network and rate limits have bounded retries, token stays only in HTTP hea
 test('a truncated fallback cannot silently produce a valid empty report', async () => {
   await assert.rejects(submissionPaths(async endpoint => endpoint.startsWith('/git/commits') ? commit : { truncated: true, tree: [] }, 'sha'), /Truncated root tree/);
 });
+
+test('authored subtask IDs and seminar ranges map to exact solution filenames', async () => {
+  const api = async endpoint => {
+    if (endpoint.startsWith('/branches')) return [{ name: 'BPI2412_Ivanov', commit: { sha: 'a' } }];
+    if (endpoint.startsWith('/git/commits')) return commit;
+    return { truncated: false, tree: ['submissions/seminar-04/1.1.c', 'submissions/seminar-04/1.2.c', 'submissions/seminar-04/1.c', 'submissions/seminar-04/2.c', 'submissions/seminar-04/99.c', 'submissions/seminar-01-02/1.c'].map(blob) };
+  };
+  const report = await collectSubmissions({ api, config, seminars: [{ id: 'seminar-04', taskCount: 3, taskIds: ['1.1', '1.2', '2'] }, { id: 'seminar-01-02', taskCount: 1, taskIds: ['1'] }] });
+  assert.deepEqual(report.students[0].submissions['seminar-04'], ['1.1.c', '1.2.c', '2.c']);
+  assert.deepEqual(report.students[0].submissions['seminar-01-02'], ['1.c']);
+  assert.ok(report.warnings.some(item => item.includes('/1.c')));
+  assert.ok(report.warnings.some(item => item.includes('/99.c')));
+});

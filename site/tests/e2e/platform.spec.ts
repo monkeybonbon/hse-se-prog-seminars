@@ -1,6 +1,13 @@
 import { test, expect, type Locator } from '@playwright/test';
+import content from '../../src/generated/content.json' with { type: 'json' };
 
-const introduction = '#/notes/seminar-01/topics/01-introduction';
+const notes = content.seminars.flatMap(seminar => seminar.topics);
+const exampleNote = notes.find(note => note.codeBlocks > 0 && note.markdown.includes('__CONTENT_ASSET__'))!;
+const multiNote = notes.find(note => note.codeBlocks >= 3)!;
+const tasksSeminar = content.seminars.find(seminar => seminar.tasks)!;
+const tasksNote = tasksSeminar.tasks!;
+const mathNote = [...notes, tasksNote].find(note => note.markdown.includes('$'))!;
+const introduction = `#${exampleNote.route}`;
 async function setCode(editor: Locator, source: string) {
   const content = editor.locator('.cm-content');
   await content.click();
@@ -16,12 +23,14 @@ test('real C compilation, edited source, persistence, reset, Obsidian links, ima
   const requests: string[] = [];
   page.on('request', request => requests.push(request.url()));
   await page.goto(introduction);
-  await expect(page.getByRole('heading', { name: 'Привет, C!' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: exampleNote.title, exact: true, level: 1 })).toBeVisible();
   expect(requests.some(url => url.includes('/toolchain/'))).toBeFalsy();
-  const image = page.locator('article img');
+  const image = page.locator('article img').first();
+  await image.scrollIntoViewIfNeeded();
   await expect(image).toHaveJSProperty('complete', true);
   expect(await image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
-  const editor = page.locator('.code-editor');
+  const editor = page.locator('.code-editor').first();
+  const original = await editor.locator('.cm-content').innerText();
   const code = '#include <stdio.h>\nint main(void) { printf("edited: %d\\n", 19 * 23); return 0; }';
   await setCode(editor, code);
   await compile(editor);
@@ -29,30 +38,32 @@ test('real C compilation, edited source, persistence, reset, Obsidian links, ima
   await expect(editor.locator('.editor-status')).toContainText('код 0');
   await page.reload();
   await expect(editor.locator('.cm-content')).toContainText('19 * 23');
-  await page.locator('article a').filter({ hasText: 'типы данных и переменные' }).click();
-  await expect(page.getByRole('heading', { name: 'Типы данных', exact: true })).toBeVisible();
+  const otherNote = notes.find(note => note.path !== exampleNote.path)!;
+  await page.locator('.sidebar').getByRole('link', { name: otherNote.title, exact: false }).click();
+  await expect(page.getByRole('heading', { name: otherNote.title, exact: true, level: 1 })).toBeVisible();
   await page.goBack();
   await expect(editor.locator('.cm-content')).toContainText('19 * 23');
   await editor.getByRole('button', { name: '↺ Сбросить' }).click();
-  await expect(editor.locator('.cm-content')).toContainText('Привет, мир!');
-  await compile(editor);
-  await expect(editor.getByRole('tabpanel')).toContainText('Привет, мир!');
+  await expect(editor.locator('.cm-content')).toHaveText(original, { useInnerText: true });
   expect(requests.filter(url => url.includes('/toolchain/')).every(url => new URL(url).origin === 'http://127.0.0.1:4173')).toBeTruthy();
 });
 
 test('stdin scanf, stderr, exit code, errors and independent editor state', async ({ page }) => {
-  await page.goto('#/notes/seminar-01/topics/03-input-output');
+  await page.goto(`#${multiNote.route}`);
   const editors = page.locator('.code-editor');
   const input = editors.nth(0);
+  await setCode(input, '#include <stdio.h>\nint main(void) { int a,b; if(scanf("%d%d",&a,&b)!=2) return 1; printf("Сумма: %d\\n",a+b); return 0; }');
   await input.locator('summary').click();
   await input.getByLabel('stdin', { exact: true }).fill('12 30');
   await compile(input);
   await expect(input.getByRole('tabpanel')).toContainText('Сумма: 42');
+  await setCode(editors.nth(1), '#include <stdio.h>\nint main(void) { printf("Начало программы\\n"); fprintf(stderr,"Пример диагностического сообщения\\n"); return 7; }');
   await compile(editors.nth(1));
   await expect(editors.nth(1).locator('.editor-status')).toContainText('код 7');
   await expect(editors.nth(1).getByRole('tabpanel')).toContainText('Пример диагностического сообщения');
   await editors.nth(1).getByRole('tab', { name: 'stdout', exact: true }).click();
   await expect(editors.nth(1).getByRole('tabpanel')).toContainText('Начало программы');
+  await setCode(editors.nth(2), '#include <stdio.h>\nint main(void) { printf("broken") return 0; }');
   await compile(editors.nth(2));
   await expect(editors.nth(2).locator('.editor-status')).toContainText('Ошибка компиляции');
   await expect(editors.nth(2).getByRole('tabpanel')).toContainText('error:');
@@ -67,7 +78,7 @@ test('stdin scanf, stderr, exit code, errors and independent editor state', asyn
 
 test('stdlib, strings, math, loops and pointers compile in the browser', async ({ page }) => {
   await page.goto(introduction);
-  const editor = page.locator('.code-editor');
+  const editor = page.locator('.code-editor').first();
   await setCode(editor, '#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\nint main(void) { double x; if (scanf("%lf", &x)!=1) return 2; int *p=malloc(3*sizeof(int)); if(!p) return 1; for(int i=0;i<3;i++) p[i]=i+1; printf("%.1f %zu %d\\n", sqrt(x), strlen("abc"), *(p+2)); free(p); return 0; }');
   await editor.locator('summary').click();
   await editor.getByLabel('stdin', { exact: true }).fill('81');
@@ -77,8 +88,9 @@ test('stdlib, strings, math, loops and pointers compile in the browser', async (
 });
 
 test('runaway program times out and manual stop leaves the page responsive', async ({ page }) => {
-  await page.goto('#/notes/seminar-02/topics/02-loops');
-  const editor = page.locator('.code-editor').nth(1);
+  await page.goto(introduction);
+  const editor = page.locator('.code-editor').first();
+  await setCode(editor, 'int main(void) { volatile unsigned long count=0; for(;;) count++; }');
   await compile(editor);
   await expect(editor.locator('.editor-status')).toContainText('Превышено время выполнения');
   await editor.getByRole('button', { name: '▶ Запустить' }).click();
@@ -92,7 +104,7 @@ test('runaway program times out and manual stop leaves the page responsive', asy
 test('failed toolchain load recovers with a clear message', async ({ page }) => {
   await page.route('**/toolchain/**', route => route.fulfill({ status: 503, body: 'unavailable' }));
   await page.goto(introduction);
-  const editor = page.locator('.code-editor');
+  const editor = page.locator('.code-editor').first();
   await editor.getByRole('button', { name: '▶ Запустить' }).click();
   await expect(editor.locator('.editor-status')).toContainText(/Не удалось|Failed to fetch|HTTP 503/, { timeout: 30000 });
   await expect(editor.getByRole('button', { name: '▶ Запустить' })).toBeEnabled();
@@ -101,13 +113,13 @@ test('failed toolchain load recovers with a clear message', async ({ page }) => 
 test('report filters, immutable file links, stale and unknown statuses', async ({ page }) => {
   await page.route('**/submissions.json?*', route => route.fulfill({ json: {
     status: 'partial', updatedAt: '2020-01-01T00:00:00Z', students: [
-      { branch: 'BPI2412_Ivanov', group: 'BPI2412', surname: 'Ivanov', status: 'ok', sha: 'abc123', lastCommitAt: null, submissions: { 'seminar-01': ['1.c'], 'seminar-02': [] } },
+      { branch: 'BPI2412_Ivanov', group: 'BPI2412', surname: 'Ivanov', status: 'ok', sha: 'abc123', lastCommitAt: null, submissions: { [tasksSeminar.id]: [`${tasksSeminar.taskIds[0]}.c`] } },
       { branch: 'BPI2413_Petrov', group: 'BPI2413', surname: 'Petrov', status: 'unavailable', sha: 'def456', lastCommitAt: null, submissions: {} },
     ], warnings: [] },
   }));
   await page.goto('#/submissions');
   await expect(page.getByText('Данные некоторых веток недоступны.', { exact: false })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Загружено ↗' })).toHaveAttribute('href', /blob\/abc123\/submissions\/seminar-01\/1.c/);
+  await expect(page.getByRole('link', { name: 'Загружено ↗' })).toHaveAttribute('href', `https://github.com/monkeybonbon/hse-se-prog-seminars/blob/abc123/submissions/${tasksSeminar.id}/${tasksSeminar.taskIds[0]}.c`);
   await page.getByLabel('Группа', { exact: true }).selectOption('BPI2413');
   await expect(page.locator('tbody')).not.toContainText('Ivanov');
   await expect(page.locator('tbody')).toContainText('Нет данных');
@@ -117,28 +129,55 @@ test('report filters, immutable file links, stale and unknown statuses', async (
 
 test('mobile layout, menu, direct hash URL, refresh, tasks instructions and full-text search', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto('#/notes/seminar-03/tasks');
-  await expect(page.getByRole('heading', { name: 'Задания на семинар 3' })).toBeVisible();
+  await page.goto(`#${tasksNote.route}`);
+  await expect(page.getByRole('heading', { name: tasksNote.title, exact: true, level: 1 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Как сдать задания' })).toBeVisible();
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Задания на семинар 3' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: tasksNote.title, exact: true, level: 1 })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
   await page.getByRole('button', { name: 'Меню семинаров' }).click();
   await page.getByRole('textbox', { name: 'Поиск по конспектам' }).fill('printf');
-  await page.locator('.sidebar').getByRole('link', { name: 'Привет, C!' }).click();
+  await page.locator('.sidebar').getByRole('link', { name: exampleNote.title, exact: false }).click();
   await expect(page.locator('.sidebar')).not.toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Привет, C!' })).toBeVisible();
-  await expect(page.locator('.cm-content')).toBeVisible();
+  await expect(page.getByRole('heading', { name: exampleNote.title, exact: true, level: 1 })).toBeVisible();
+  await expect(page.locator('.cm-content').first()).toBeVisible();
   await page.screenshot({ path: '.local/mobile.png', fullPage: true });
 });
 
 test('desktop screenshot, TOC anchors and KaTeX', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1100 });
   await page.goto(introduction);
-  await expect(page.locator('.cm-content')).toBeVisible();
+  await expect(page.locator('.cm-content').first()).toBeVisible();
   await page.screenshot({ path: '.local/desktop.png', fullPage: true });
-  await page.getByRole('complementary', { name: 'Оглавление темы' }).getByRole('link', { name: 'Как устроен этот код', exact: true }).click();
-  await expect(page).toHaveURL(url => decodeURIComponent(url.hash).endsWith('#как-устроен-этот-код'));
-  await page.goto('#/notes/seminar-01/topics/02-data-types');
-  await expect(page.locator('.katex')).toBeVisible();
+  const heading = exampleNote.headings.find(heading => heading.depth === 2)!;
+  await page.getByRole('complementary', { name: 'Оглавление темы' }).getByRole('link', { name: heading.text, exact: true }).click();
+  await expect(page).toHaveURL(url => decodeURIComponent(url.hash).endsWith(`#${heading.id}`));
+  await page.goto(`#${mathNote.route}`);
+  await expect(page.locator('.katex').first()).toBeVisible();
+});
+
+test('every authored note opens directly with its filename title, shared media and seminar tasks', async ({ page }) => {
+  for (const seminar of content.seminars) {
+    for (const note of [...seminar.topics, ...(seminar.tasks ? [seminar.tasks] : [])]) {
+      await page.goto(`#${note.route}`);
+      await expect(page.getByRole('heading', { name: note.title, exact: true, level: 1 })).toBeVisible();
+      await expect(page.locator('.breadcrumbs')).toContainText(seminar.title);
+      for (const image of await page.locator('article img').all()) {
+        await image.scrollIntoViewIfNeeded();
+        await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+        await expect(image).toHaveAttribute('src', /^\/qa-repo\/content\//);
+      }
+      if (note.path === seminar.tasks?.path) {
+        await expect(page.locator('.seminar-tabs .selected')).toContainText('Задания на семинар');
+        await expect(page.locator('.git-instructions')).toContainText(`submissions/${seminar.id}/`);
+        for (const id of seminar.taskIds) await expect(page.locator('.git-instructions')).toContainText(`${id}.c`);
+      }
+    }
+  }
+  const punctuated = notes.find(note => note.path.includes(','));
+  if (punctuated) {
+    await page.goto(`#${punctuated.route}`);
+    await page.reload();
+    await expect(page.getByRole('heading', { name: punctuated.title, exact: true, level: 1 })).toBeVisible();
+  }
 });
