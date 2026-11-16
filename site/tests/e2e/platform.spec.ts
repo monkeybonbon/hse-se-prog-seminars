@@ -1,5 +1,6 @@
 import { test, expect, type Locator } from '@playwright/test';
 import content from '../../src/generated/content.json' with { type: 'json' };
+import config from '../../site.config.json' with { type: 'json' };
 
 const notes = content.seminars.flatMap(seminar => seminar.topics);
 const exampleNote = notes.find(note => note.codeBlocks > 0 && note.markdown.includes('__CONTENT_ASSET__'))!;
@@ -97,7 +98,7 @@ test('runaway program times out and manual stop leaves the page responsive', asy
   await expect(editor.locator('.editor-status')).toContainText('Выполнение…', { timeout: 120000 });
   await editor.getByRole('button', { name: '■ Остановить' }).click();
   await expect(editor.locator('.editor-status')).toContainText('Программа остановлена');
-  await page.getByRole('link', { name: 'Сдача заданий', exact: true }).first().click();
+  await page.goto(`#${config.submissionsPath}`);
   await expect(page.getByRole('heading', { name: 'Сдача заданий' })).toBeVisible();
 });
 
@@ -110,14 +111,21 @@ test('failed toolchain load recovers with a clear message', async ({ page }) => 
   await expect(editor.getByRole('button', { name: '▶ Запустить' })).toBeEnabled();
 });
 
-test('report filters, immutable file links, stale and unknown statuses', async ({ page }) => {
+test('unlinked report URL, removed old route, refresh, filters and immutable file links', async ({ page }) => {
   await page.route('**/submissions.json?*', route => route.fulfill({ json: {
     status: 'partial', updatedAt: '2020-01-01T00:00:00Z', students: [
       { branch: 'BPI2412_Ivanov', group: 'BPI2412', surname: 'Ivanov', status: 'ok', sha: 'abc123', lastCommitAt: null, submissions: { [tasksSeminar.id]: [`${tasksSeminar.taskIds[0]}.c`] } },
       { branch: 'BPI2413_Petrov', group: 'BPI2413', surname: 'Petrov', status: 'unavailable', sha: 'def456', lastCommitAt: null, submissions: {} },
     ], warnings: [] },
   }));
+  await page.goto(introduction);
+  await expect(page.getByRole('link', { name: 'Сдача заданий', exact: true })).toHaveCount(0);
+  await expect(page.locator(`a[href="#${config.submissionsPath}"]`)).toHaveCount(0);
   await page.goto('#/submissions');
+  await expect(page.getByRole('heading', { name: 'Страница не найдена' })).toBeVisible();
+  await page.goto(`#${config.submissionsPath}`);
+  await expect(page.getByRole('heading', { name: 'Сдача заданий' })).toBeVisible();
+  await page.reload();
   await expect(page.getByText('Данные некоторых веток недоступны.', { exact: false })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Загружено ↗' })).toHaveAttribute('href', `https://github.com/monkeybonbon/hse-se-prog-seminars/blob/abc123/submissions/${tasksSeminar.id}/${tasksSeminar.taskIds[0]}.c`);
   await page.getByLabel('Группа', { exact: true }).selectOption('BPI2413');
