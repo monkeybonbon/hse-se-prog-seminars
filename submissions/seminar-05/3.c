@@ -7,3 +7,4 @@ int main(void) {
         *(p+i)=0;
     }
 }
+//gyyy
