@@ -5,7 +5,7 @@ int main(void) {
     int li, lj;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            scanf("%c", &b[i][j]);
+            scanf(" %c", &b[i][j]);
             if (b[i][j] == 'R') {
                 li = i;
                 lj = j;
@@ -13,6 +13,7 @@ int main(void) {
         }
     }
 
+    printf("\n");
     for (int i = 0; i < 8; i++) {
         if (b[i][lj] != 'R') {
             b[i][lj] = '*';
