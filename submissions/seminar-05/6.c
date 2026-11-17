@@ -18,7 +18,7 @@ int main(void) {
         }
         printf("%d ", sum);
     }
-
+ 
     printf("\n");
 
     for (int j = 0; j < 4; j++) {
