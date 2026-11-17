@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node scripts/generate-content-manifest.mjs && vite --host 127.0.0.1",
     "content": "node scripts/generate-content-manifest.mjs",
+    "notes:sync": "git -C .. submodule update --init --remote -- site/notes",
+    "notes:setup": "node scripts/install-notes-notification.mjs",
     "toolchain": "node scripts/setup-toolchain.mjs",
     "collect": "node scripts/collect-submissions.mjs",
     "build": "node scripts/generate-content-manifest.mjs && tsc -b && vite build",

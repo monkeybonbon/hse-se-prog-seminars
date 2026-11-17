@@ -1,0 +1,37 @@
+name: Update seminar website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'АиАЯ/**'
+      - '0 media/**'
+      - '.github/workflows/publish-site.yml'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: notify-seminar-website
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    if: github.repository == 'monkeybonbon/hse-se-prog-seminars-obsidian'
+    runs-on: ubuntu-latest
+    steps:
+      # No checkout: never execute code or Obsidian plugins from the vault.
+      - name: Trigger trusted main build in the website repository
+        env:
+          GH_TOKEN: ${{ secrets.SITE_PUBLISH_TOKEN }}
+        shell: bash
+        run: |
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo '::error::Add SITE_PUBLISH_TOKEN in the Obsidian repository secrets. It needs Actions: write only on monkeybonbon/hse-se-prog-seminars.'
+            exit 1
+          fi
+          gh api --method POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            repos/monkeybonbon/hse-se-prog-seminars/actions/workflows/pages.yml/dispatches \
+            -f ref=main

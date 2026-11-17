@@ -1,4 +1,4 @@
-import { readdir, readFile, mkdir, writeFile, cp, rm } from 'node:fs/promises';
+import { access, readdir, readFile, mkdir, writeFile, cp, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { compileMarkdown, extractMetadata, topicRoute, taskIdsFromMarkdown } from './content.mjs';
@@ -32,6 +32,11 @@ async function seminarSources(notes, prefix = '') {
 
 export async function generateContent({ root = process.cwd(), warn = console.warn } = {}) {
   const notes = path.join(root, 'notes');
+  const modules = await readFile(path.join(root, '..', '.gitmodules'), 'utf8').catch(error => { if (error.code === 'ENOENT') return ''; throw error; });
+  if (/^\s*path\s*=\s*site\/notes\s*$/m.test(modules)) {
+    try { await access(path.join(notes, '.git')); }
+    catch { throw new Error('Obsidian notes submodule is not initialized. Run git submodule update --init --recursive from the repository root (or npm run notes:sync from site/).'); }
+  }
   const files = (await walk(notes)).map(file => path.relative(notes, file).split(path.sep).join('/'));
   const documents = [];
   const assets = files.filter(file => !/\.md$/i.test(file)).map(file => ({ path: file }));

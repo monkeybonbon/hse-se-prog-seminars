@@ -1,0 +1,4 @@
+[submodule "site/notes"]
+	path = site/notes
+	url = https://github.com/monkeybonbon/hse-se-prog-seminars-obsidian.git
+	branch = main

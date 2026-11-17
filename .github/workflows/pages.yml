@@ -26,6 +26,12 @@ jobs:
         with:
           ref: main
           persist-credentials: false
+      - name: Fetch latest Obsidian notes
+        working-directory: ${{ github.workspace }}
+        run: |
+          git submodule sync -- site/notes
+          git submodule update --init --remote --depth 1 -- site/notes
+          echo "Obsidian commit: $(git -C site/notes rev-parse HEAD)"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

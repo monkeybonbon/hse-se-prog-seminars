@@ -113,3 +113,31 @@ test('link resolution normalizes Unicode without renaming files on disk', () => 
   assert.ok(compiled.markdown.includes('#/notes/'));
   assert.ok(compiled.markdown.includes('__CONTENT_ASSET__/0%20media/'));
 });
+
+test('note embeds remain usable links while image embeds stay images', () => {
+  const result = compileMarkdown('![[Указатели и адреса]]\n\n![[рисунок.png]]', 'АиАЯ/sem4/Без названия.md', [{ path: 'АиАЯ/sem4/Указатели и адреса.md', title: 'Указатели и адреса' }], [{ path: '0 media/рисунок.png' }], warning => assert.fail(warning));
+  assert.ok(result.markdown.includes('[Указатели и адреса](#/notes/'));
+  assert.ok(!result.markdown.includes('![Указатели и адреса]'));
+  assert.ok(result.markdown.includes('![рисунок.png](__CONTENT_ASSET__/'));
+});
+
+test('uninitialized notes submodule fails instead of publishing empty content', async () => {
+  const repository = await mkdtemp(path.join(os.tmpdir(), 'c-submodule-'));
+  const root = path.join(repository, 'site');
+  try {
+    await mkdir(path.join(root, 'notes'), { recursive: true });
+    await writeFile(path.join(repository, '.gitmodules'), '[submodule "site/notes"]\n  path = site/notes\n  branch = main\n');
+    await assert.rejects(generateContent({ root }), /submodule is not initialized/);
+    await writeFile(path.join(root, 'notes/.git'), 'gitdir: ../../.git/modules/site/notes\n');
+    await mkdir(path.join(root, 'notes/АиАЯ/sem5'), { recursive: true });
+    await mkdir(path.join(root, 'notes/.obsidian/plugins/plugin'), { recursive: true });
+    await mkdir(path.join(root, 'notes/.github/workflows'), { recursive: true });
+    await writeFile(path.join(root, 'notes/АиАЯ/sem5/Тема.md'), '# Тема');
+    await writeFile(path.join(root, 'notes/.obsidian/plugins/plugin/main.js'), 'throw new Error("never run");');
+    await writeFile(path.join(root, 'notes/.github/workflows/publish-site.yml'), 'name: not an asset');
+    const result = await generateContent({ root });
+    assert.equal(result.seminars[0].id, 'seminar-05');
+    await assert.rejects(readFile(path.join(root, 'public/content/.obsidian/plugins/plugin/main.js')), /ENOENT/);
+    await assert.rejects(readFile(path.join(root, 'public/content/.github/workflows/publish-site.yml')), /ENOENT/);
+  } finally { await rm(repository, { recursive: true, force: true }); }
+});

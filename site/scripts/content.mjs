@@ -43,7 +43,7 @@ export function compileMarkdown(markdown, current, documents, assets, warn = con
   const slugger = new GithubSlugger();
   const ids = new Set();
   let block = 0;
-  function resolve(target, isImage = false) {
+  function resolve(target, isImage = false, silent = false) {
     if (/^(?:[a-z][\w+.-]*:|\/\/)/i.test(target)) return target;
     const [rawPath, anchor = ''] = target.split('#');
     const decode = value => { try { return decodeURIComponent(value); } catch { return value; } };
@@ -56,7 +56,7 @@ export function compileMarkdown(markdown, current, documents, assets, warn = con
     const exact = candidates.find(item => [relative, `${relative}.md`, requested, `${requested}.md`].includes(normalize(item.path)));
     const byName = candidates.filter(item => normalize(path.posix.basename(item.path, '.md')) === wanted || normalize(item.title || '') === wanted || normalize(path.posix.basename(item.path)) === requested);
     const found = exact || (byName.length === 1 ? byName[0] : null);
-    if (!found) { warn(`[content] ${current}: unresolved or ambiguous link "${target}"`); return target; }
+    if (!found) { if (silent) return null; warn(`[content] ${current}: unresolved or ambiguous link "${target}"`); return target; }
     const suffix = anchor ? `#${slug(decode(anchor))}` : '';
     return isImage ? `__CONTENT_ASSET__/${encodePath(found.path)}` : `#${topicRoute(found.path)}${suffix}`;
   }
@@ -87,8 +87,13 @@ export function compileMarkdown(markdown, current, documents, assets, warn = con
     for (const match of node.value.matchAll(pattern)) {
       parts.push({ type: 'text', value: node.value.slice(from, match.index) });
       const [target, caption] = match[2].split('|');
-      const image = match[1] === '!';
-      const url = resolve(target, image);
+      let image = match[1] === '!';
+      let url = resolve(target, image, image);
+      if (image && url === null) {
+        const noteUrl = resolve(target, false, true);
+        if (noteUrl) { image = false; url = noteUrl; }
+        else url = resolve(target, true);
+      }
       parts.push(image ? { type: 'image', url, alt: caption || path.posix.basename(target) } : { type: 'link', url, children: [{ type: 'text', value: caption || target.split('#')[0] || target.split('#')[1] }] });
       from = match.index + match[0].length;
     }
