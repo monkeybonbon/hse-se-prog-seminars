@@ -3,20 +3,26 @@
 int main(void) {
     int n, m;
     scanf("%d %d", &n, &m);
-    int a[n][m];
-    int b[m*n];
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            scanf("%d", &a[i][j]);
-            b[i*n+ = a[i][j];
+    int a[n*m];
+    for (int i = 0; i < n*m; i++) {
+        scanf("%d", &a[i]);
+    }
+
+    for (int i = 0; i < n*m; i++) {
+        for (int j = 0; j < n*m; j++) {
+            if (a[i] > a[j]) {
+                int q = a[i];
+                a[i] = a[j];
+                a[j] = q;
+            }
         }
     }
 
-    for (int j = 0; j < m; j++) {
-        for (int i = 0; i < n; i++) {
-            printf("%d ", b[j][i]);
+    for (int i = 0; i < n*m; i++) {
+        printf(" %d", a[i]);
+        if ((i + 1)%m == 0) {
+            printf("\n");
         }
-        printf("\n");
     }
 
     return 0;
