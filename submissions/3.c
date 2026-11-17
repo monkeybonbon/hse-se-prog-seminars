@@ -1,0 +1,12 @@
+int third(void) {
+    int a[16] = {1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1};
+    int *p = &a[5];
+    for (int i = -5; i < 11; i++) {
+        *(p + i) = 0;
+    }
+    for (int i = 0; i < 16; i++) {
+        printf("%d", a[i]);
+    }
+    return 0;
+}
