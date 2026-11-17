@@ -10,28 +10,23 @@ int main(void) {
         }
     }
 
-    printf("Суммы строк: ");
     for (int i = 0; i < 3; i++) {
         int sum = 0;
 
         for (int j = 0; j < 4; j++) {
             sum += a[i][j];
         }
-
         printf("%d ", sum);
     }
 
     printf("\n");
 
-    // Суммы столбцов
-    printf("Суммы столбцов: ");
     for (int j = 0; j < 4; j++) {
         int sum = 0;
 
         for (int i = 0; i < 3; i++) {
             sum += a[i][j];
         }
-
         printf("%d ", sum);
     }
 
