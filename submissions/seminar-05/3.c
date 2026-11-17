@@ -9,7 +9,7 @@ int main () {
         *(p + i) = 0;
     }
     for (int i = 0; i < 16; i++) {
-        printf("%d", a[i]);
+        printf("%d ", a[i]);
     }
     return 0;
 }
