@@ -8,10 +8,12 @@ int main(void) {
 
     for(int i = 0; i < n; i++){
         for(int j = 0; j < m; j++){
-            if (i == 0 && j == m-1){
-                a[i][j] = i + j + 1;
-            } if ()
-        }
+            a[i][j] = 0;
+        }  
+    }
+
+    for(int k = 0; k < n*m; k++){
+
     }
 
     for(int i = 0; i < n; i++){
