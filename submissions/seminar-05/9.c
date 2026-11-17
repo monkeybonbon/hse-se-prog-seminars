@@ -8,9 +8,9 @@ int main() {
             scanf("%d", &a[i][j]);
     for(int i=0; i<n; i++)
         for(int j=0; j<m; j++)
-            for(int x=i+1; x<n; x++)
-                for(int y=j+1; y<m; y++)
-                    if(a[i][j]>a[x][y]){
+            for(int x=i; x<n; x++)
+                for(int y=0; y<m; y++)
+                    if((x>i||y>j)&&a[i][j]<a[x][y]){
                         int t=a[i][j];
                         a[i][j]=a[x][y];
                         a[x][y]=t;
@@ -18,6 +18,7 @@ int main() {
     for(int i=0; i<n; i++){
         for(int j=0; j<m; j++)
             printf("%d ", a[i][j]);
+        printf("\n");
     }
     return 0;
 }
