@@ -9,3 +9,11 @@ playwright-report/
 *.tsbuildinfo
 .env*
 *answers*
+
+# бинарники gcc в решениях: коммитим только исходники
+/submissions/**/*
+!/submissions/**/
+!/submissions/**/*.c
+!/submissions/**/*.h
+!/submissions/**/*.md
+!/submissions/**/*.txt
