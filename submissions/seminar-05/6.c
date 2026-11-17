@@ -8,7 +8,7 @@ int maint(void) {
     }
   }
   int r_sum;
-  int c_sum, c_sum2, c_sum3, c_sum4;
+  int c_sum;
   printf("Суммы строк:");
   for (int k = 0; k < 3; k++) {
     r_sum = 0;
@@ -21,7 +21,7 @@ int maint(void) {
   printf("Суммы столбцов:");
   for (int j = 0; j < 4; j++) {
     c_sum = 0;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
       c_sum += matrix[i][j];
     }
     printf(" %d", c_sum);
