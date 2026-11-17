@@ -7,11 +7,11 @@ int main()
     int a[] = {1, 2, 3, 4, 5};
     int *p = &a[1], i = 3;
     char *q = c;
-    printf("%d\n", sizeof(c));
-    printf("%d\n", sizeof(a));
-    printf("%d\n", sizeof(p));
-    printf("%d\n", sizeof(q));
-    printf("%d\n", sizeof(*p));
-    printf("%d\n", sizeof(*q));
+    printf("%zu\n", sizeof(c)); // 9
+    printf("%zu\n", sizeof(a)); // 20
+    printf("%zu\n", sizeof(p)); // 8
+    printf("%zu\n", sizeof(q)); // 8
+    printf("%zu\n", sizeof(*p)); // 4
+    printf("%zu\n", sizeof(*q)); // 1
     return 0;
 }
