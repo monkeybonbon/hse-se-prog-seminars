@@ -1,7 +1,7 @@
 <!-- seminar-05-review:start -->
 # BPI2651_Gruzdenko — семинар 5
 
-**Итого: 5.688 / 13.5 балла.** До коэффициентов срока за выбранные версии: 11.375.
+**Итого: 9.375 / 13.5 балла.** До коэффициентов срока за выбранные версии: 11.375.
 
 Ветка: `BPI2651_Gruzdenko`; зафиксированная вершина: `43b4ebe2cbf3c8f255247d0d0055cf1b4dc2f32c`.
 Снимок собран 18.11.2026 11:34:12 МСК. Все времена ниже — МСК.
@@ -9,105 +9,107 @@
 Полный балл до 17.11.2026 14:30:00, половина до 18.11.2026 00:00:00; затем 0.
 Выбирается наибольший балл по всем найденным версиям с учётом срока. [Правила и эталоны](#правила-и-эталоны).
 
+**Индивидуальное исключение по срокам:** По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче. По задачам 10–11 действуют обычные коэффициенты.
+
 | № | Максимум | За решение | Коэфф. срока | Зачтено | Коммит решения, МСК |
 |---|---:|---:|---:|---:|---|
-| 1 | 1 | 1 | 0.5 | **0.5** | 17.11.2026 15:31:07 |
-| 2 | 1 | 1 | 0.5 | **0.5** | 17.11.2026 15:31:07 |
-| 3 | 1 | 0.25 | 0.5 | **0.125** | 17.11.2026 15:31:07 |
-| 4 | 0.5 | 0.5 | 0.5 | **0.25** | 17.11.2026 15:31:07 |
-| 5 | 0.5 | 0.5 | 0.5 | **0.25** | 17.11.2026 15:31:07 |
-| 6 | 1 | 1 | 0.5 | **0.5** | 17.11.2026 15:31:07 |
-| 7 | 1 | 1 | 0.5 | **0.5** | 17.11.2026 15:31:07 |
-| 8 | 1.5 | 1.125 | 0.5 | **0.563** | 17.11.2026 15:31:07 |
-| 9 | 2 | 1 | 0.5 | **0.5** | 17.11.2026 15:31:07 |
+| 1 | 1 | 1 | 1 | **1** | 17.11.2026 15:31:07 |
+| 2 | 1 | 1 | 1 | **1** | 17.11.2026 15:31:07 |
+| 3 | 1 | 0.25 | 1 | **0.25** | 17.11.2026 15:31:07 |
+| 4 | 0.5 | 0.5 | 1 | **0.5** | 17.11.2026 15:31:07 |
+| 5 | 0.5 | 0.5 | 1 | **0.5** | 17.11.2026 15:31:07 |
+| 6 | 1 | 1 | 1 | **1** | 17.11.2026 15:31:07 |
+| 7 | 1 | 1 | 1 | **1** | 17.11.2026 15:31:07 |
+| 8 | 1.5 | 1.125 | 1 | **1.125** | 17.11.2026 15:31:07 |
+| 9 | 2 | 1 | 1 | **1** | 17.11.2026 15:31:07 |
 | 10 | 2 | 2 | 0.5 | **1** | 17.11.2026 22:22:03 |
 | 11 | 2 | 2 | 0.5 | **1** | 17.11.2026 22:22:03 |
 
-Сумма считается по точным дробям, затем округляется до 0.001: **5.688**. Сумма округлённых строк может отличаться на 0.001.
+Сумма считается по точным дробям, затем округляется до 0.001: **9.375**. Сумма округлённых строк может отличаться на 0.001.
 
 ## Задача 1. Значения, типы и побочные эффекты
 
-**1 × 0.5 = 0.5 / 1.**
+**1 × 1 = 1 / 1.**
 
 [исходник](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/1.c), файл `submissions/seminar-05/1.c`, коммит [`adb6d625`](https://github.com/monkeybonbon/hse-se-prog-seminars/commit/adb6d625db5834fde89cf6c6e9aa5222f106bfa3), 17.11.2026 15:31:07 МСК.
 
 Теоретическая таблица в комментариях полностью верна. Незавершённый демонстрационный main не влияет на правильность письменного ответа.
 
-Коэффициент 0.5: эта версия закоммичена после срока полного балла, до окончательного дедлайна.
+Коэффициент 1: По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче.
 
 ## Задача 2. Размеры sizeof
 
-**1 × 0.5 = 0.5 / 1.**
+**1 × 1 = 1 / 1.**
 
 [исходник](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/2.c), файл `submissions/seminar-05/2.c`, коммит [`adb6d625`](https://github.com/monkeybonbon/hse-se-prog-seminars/commit/adb6d625db5834fde89cf6c6e9aa5222f106bfa3), 17.11.2026 15:31:07 МСК.
 
 Все шесть sizeof указаны верно для 64-битной платформы.
 
-Коэффициент 0.5: эта версия закоммичена после срока полного балла, до окончательного дедлайна.
+Коэффициент 1: По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче.
 
 ## Задача 3. Обнуление через указатель
 
-**0.25 × 0.5 = 0.125 / 1.**
+**0.25 × 1 = 0.25 / 1.**
 
 [исходник](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/3.c), файл `submissions/seminar-05/3.c`, коммит [`adb6d625`](https://github.com/monkeybonbon/hse-se-prog-seminars/commit/adb6d625db5834fde89cf6c6e9aa5222f106bfa3), 17.11.2026 15:31:07 МСК.
 
 Вместо p используется необъявленный a; индексы i-5 отрицательны на первых пяти итерациях. Цикл не обнуляет заданный массив безопасно.
 
-Коэффициент 0.5: эта версия закоммичена после срока полного балла, до окончательного дедлайна.
+Коэффициент 1: По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче.
 
 ## Задача 4. Разности указателей
 
-**0.5 × 0.5 = 0.25 / 0.5.**
+**0.5 × 1 = 0.5 / 0.5.**
 
 [исходник](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/4.c), файл `submissions/seminar-05/4.c`, коммит [`adb6d625`](https://github.com/monkeybonbon/hse-se-prog-seminars/commit/adb6d625db5834fde89cf6c6e9aa5222f106bfa3), 17.11.2026 15:31:07 МСК.
 
 Верно: 19, 11, -8.
 
-Коэффициент 0.5: эта версия закоммичена после срока полного балла, до окончательного дедлайна.
+Коэффициент 1: По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче.
 
 ## Задача 5. Количество элементов массива
 
-**0.5 × 0.5 = 0.25 / 0.5.**
+**0.5 × 1 = 0.5 / 0.5.**
 
 [исходник](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/5.c), файл `submissions/seminar-05/5.c`, коммит [`adb6d625`](https://github.com/monkeybonbon/hse-se-prog-seminars/commit/adb6d625db5834fde89cf6c6e9aa5222f106bfa3), 17.11.2026 15:31:07 МСК.
 
 Верная формула sizeof(a)/sizeof(a[0]).
 
-Коэффициент 0.5: эта версия закоммичена после срока полного балла, до окончательного дедлайна.
+Коэффициент 1: По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче.
 
 ## Задача 6. Суммы строк и столбцов
 
-**1 × 0.5 = 0.5 / 1.**
+**1 × 1 = 1 / 1.**
 
 [исходник](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/6.c), файл `submissions/seminar-05/6.c`, коммит [`adb6d625`](https://github.com/monkeybonbon/hse-se-prog-seminars/commit/adb6d625db5834fde89cf6c6e9aa5222f106bfa3), 17.11.2026 15:31:07 МСК.
 
 Все суммы строк и столбцов вычисляются правильно, в том числе для отрицательных чисел и нулей. Проверки: 3/3.
 
-Коэффициент 0.5: эта версия закоммичена после срока полного балла, до окончательного дедлайна.
+Коэффициент 1: По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче.
 
 Исходная программа: 3/3 проверок вывода.
 
 ## Задача 7. Транспонирование
 
-**1 × 0.5 = 0.5 / 1.**
+**1 × 1 = 1 / 1.**
 
 [исходник](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/7.c), файл `submissions/seminar-05/7.c`, коммит [`adb6d625`](https://github.com/monkeybonbon/hse-se-prog-seminars/commit/adb6d625db5834fde89cf6c6e9aa5222f106bfa3), 17.11.2026 15:31:07 МСК.
 
 Транспонирование верно; результат сохранён в отдельном массиве, как требует условие. Проверки: 4/4.
 
-Коэффициент 0.5: эта версия закоммичена после срока полного балла, до окончательного дедлайна.
+Коэффициент 1: По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче.
 
 Исходная программа: 4/4 проверок вывода.
 
 ## Задача 8. Ладья
 
-**1.125 × 0.5 = 0.563 / 1.5.**
+**1.125 × 1 = 1.125 / 1.5.**
 
 [исходник](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/8.c), файл `submissions/seminar-05/8.c`, коммит [`adb6d625`](https://github.com/monkeybonbon/hse-se-prog-seminars/commit/adb6d625db5834fde89cf6c6e9aa5222f106bfa3), 17.11.2026 15:31:07 МСК.
 
 Поиск ладьи и отметка её строки/столбца реализованы, R сохраняется. Ошибка ввода: scanf("%c") считывает переводы строк как клетки, из-за чего положение ладьи и доска смещаются; в нижней строке R может вообще не попасть во ввод. Все 4 теста с доской в 8 строках дают неверный результат. Используйте scanf(" %c", &x).
 
-Коэффициент 0.5: эта версия закоммичена после срока полного балла, до окончательного дедлайна.
+Коэффициент 1: По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче.
 
 Исходная программа: 0/4 проверок вывода.
 
@@ -130,19 +132,19 @@
 
 ```
 
-Последняя другая версия: `43b4ebe2`, 17.11.2026 22:22:03 МСК, за решение 1.125, с коэффициентом 0.5 — 0.563. Более ранний заработанный балл сохранён.
+Последняя другая версия: `43b4ebe2`, 17.11.2026 22:22:03 МСК, за решение 1.125, с коэффициентом 1 — 1.125. Более ранний заработанный балл сохранён.
 
 Алгоритм отметки атакуемых клеток и сохранение R верны, но scanf("%c") не пропускает переводы строк. Программа читает 64 символа вместе с переводами строк вместо 64 клеток. Все 4 теста не проходят; нужен пробел перед %c.
 
 ## Задача 9. Сортировка по убыванию
 
-**1 × 0.5 = 0.5 / 2.**
+**1 × 1 = 1 / 2.**
 
 [исходник](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/9.c), файл `submissions/seminar-05/9.c`, коммит [`adb6d625`](https://github.com/monkeybonbon/hse-se-prog-seminars/commit/adb6d625db5834fde89cf6c6e9aa5222f106bfa3), 17.11.2026 15:31:07 МСК.
 
 Идея собрать элементы, отсортировать и вывести обратно верна. Внутренний цикл j<m*n читает vis[j+1], включая vis[m*n] — неинициализированный лишний элемент. Он попадает в результат: для 1×4 с 8 -2 8 4 получается 8 8 4 0. Нужно j<m*n-1 (лучше m*n-1-i), затем перенести результат в матрицу.
 
-Коэффициент 0.5: эта версия закоммичена после срока полного балла, до окончательного дедлайна.
+Коэффициент 1: По решению преподавателя задачи 1–9 приняты с коэффициентом 1 из-за проблем с Git при сдаче.
 
 Исходная программа: 1/4 проверок вывода.
 
@@ -184,16 +186,16 @@
 
 | № | Коммит | Дата, МСК | Файл | За решение | Коэфф. | Зачтено |
 |---|---|---|---|---:|---:|---:|
-| 1 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/1.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/1.c) | 1 | 0.5 | 0.5 |
-| 2 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/2.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/2.c) | 1 | 0.5 | 0.5 |
-| 3 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/3.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/3.c) | 0.25 | 0.5 | 0.125 |
-| 4 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/4.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/4.c) | 0.5 | 0.5 | 0.25 |
-| 5 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/5.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/5.c) | 0.5 | 0.5 | 0.25 |
-| 6 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/6.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/6.c) | 1 | 0.5 | 0.5 |
-| 7 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/7.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/7.c) | 1 | 0.5 | 0.5 |
-| 8 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/8.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/8.c) | 1.125 | 0.5 | 0.563 |
-| 8 | `43b4ebe2` | 17.11.2026 22:22:03 | [`submissions/seminar-05/8.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/43b4ebe2cbf3c8f255247d0d0055cf1b4dc2f32c/submissions/seminar-05/8.c) | 1.125 | 0.5 | 0.563 |
-| 9 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/9.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/9.c) | 1 | 0.5 | 0.5 |
+| 1 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/1.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/1.c) | 1 | 1 | 1 |
+| 2 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/2.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/2.c) | 1 | 1 | 1 |
+| 3 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/3.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/3.c) | 0.25 | 1 | 0.25 |
+| 4 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/4.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/4.c) | 0.5 | 1 | 0.5 |
+| 5 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/5.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/5.c) | 0.5 | 1 | 0.5 |
+| 6 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/6.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/6.c) | 1 | 1 | 1 |
+| 7 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/7.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/7.c) | 1 | 1 | 1 |
+| 8 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/8.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/8.c) | 1.125 | 1 | 1.125 |
+| 8 | `43b4ebe2` | 17.11.2026 22:22:03 | [`submissions/seminar-05/8.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/43b4ebe2cbf3c8f255247d0d0055cf1b4dc2f32c/submissions/seminar-05/8.c) | 1.125 | 1 | 1.125 |
+| 9 | `adb6d625` | 17.11.2026 15:31:07 | [`submissions/seminar-05/9.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/adb6d625db5834fde89cf6c6e9aa5222f106bfa3/submissions/seminar-05/9.c) | 1 | 1 | 1 |
 | 10 | `43b4ebe2` | 17.11.2026 22:22:03 | [`submissions/seminar-05/10.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/43b4ebe2cbf3c8f255247d0d0055cf1b4dc2f32c/submissions/seminar-05/10.c) | 2 | 0.5 | 1 |
 | 11 | `43b4ebe2` | 17.11.2026 22:22:03 | [`submissions/seminar-05/11.c`](https://github.com/monkeybonbon/hse-se-prog-seminars/blob/43b4ebe2cbf3c8f255247d0d0055cf1b4dc2f32c/submissions/seminar-05/11.c) | 2 | 0.5 | 1 |
 
