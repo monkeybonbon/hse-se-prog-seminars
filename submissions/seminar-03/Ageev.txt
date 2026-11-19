@@ -1,0 +1,130 @@
+Без снижения. Прислано до 18:00
+
+[18.11.2026 17:58] D: long long mult(int a, int b) {
+    return (long long)a * b;
+}
+[18.11.2026 17:58] D: #include <stdio.h>
+
+int main() {
+    int x;
+    scanf("%d", &x);
+    printf("%d\n", (x >= -5 && x <= 19));
+    printf("%d\n", (x <= 8 || x > 12));
+    return 0;
+}
+[18.11.2026 17:59] D: #include <stdio.h>
+
+int main() {
+    int n, v, s = 0;
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &v);
+        s += v;
+    }
+    printf("%d\n", s);
+    return 0;
+}
+[18.11.2026 17:59] D: #include <stdio.h>
+
+int main() {
+    int v, s = 0;
+    while (1) {
+        scanf("%d", &v);
+        if (v == 0) {
+            break;
+        }
+        s += v;
+    }
+    printf("%d\n", s);
+    return 0;
+}
+[18.11.2026 17:59] D: #include <stdio.h>
+
+int main() {
+    int n, v, m;
+    scanf("%d", &n);
+    scanf("%d", &m);
+    for (int i = 1; i < n; i++) {
+        scanf("%d", &v);
+        if (v < m) {
+            m = v;
+        }
+    }
+    printf("%d\n", m);
+    return 0;
+}
+[18.11.2026 17:59] D: #include <stdio.h>
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i == n / 2 && j == n / 2) {
+                printf("X");
+            } else if (i == j) {
+                printf("\\");
+            } else if (i + j == n - 1) {
+                printf("/");
+            } else {
+                printf("-");
+            }
+        }
+        printf("\n");
+    }
+    return 0;
+}
+[18.11.2026 17:59] D: #include <stdio.h>
+
+int main() {
+    int n, r = 0;
+    scanf("%d", &n);
+    while (n != 0) {
+        int d = n % 10;
+        r = r * 10 + d;
+        n /= 10;
+    }
+    printf("%d\n", r);
+    return 0;
+}
+[18.11.2026 17:59] D: #include <stdio.h>
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int t = n;
+    int d = 1;
+    while (t >= 10) {
+        d *= 10;
+        t /= 10;
+    }
+
+    while (d > 0) {
+        int v = n / d;
+        if (d == 1) {
+            printf("%d", v);
+        } else {
+            printf("%d ", v);
+        }
+        n %= d;
+        d /= 10;
+    }
+
+    printf("\n");
+    return 0;
+}
+[18.11.2026 17:59] D: #include <stdio.h>
+
+int main() {
+    int x, a, b, r, m;
+    
+    scanf("%d %d %d", &x, &a, &b);
+
+    r = (x < 0) ? -x : x;
+    m = (a > b) ? a : b;
+
+    printf("%d %d\n", r, m);
+
+    return 0;
+}
