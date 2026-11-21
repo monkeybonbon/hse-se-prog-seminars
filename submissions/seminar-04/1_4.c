@@ -7,10 +7,7 @@ int main(void) {
     unsigned char* p = (unsigned char*)&n;
 
     for (int i = sizeof(n) - 1; i >= 0; i--) {
-        printf("%02X", (unsigned int)p[i]);
-        if (i > 0) {
-            printf(" ");
-        }
+        printf("%02X ", (unsigned int)p[i]);
     }
     printf("\n");
     return 0;
