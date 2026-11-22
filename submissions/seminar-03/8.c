@@ -6,49 +6,26 @@ int main()
     scanf("%d", &n);
 
     int mid = n / 2;
-
-    for (int i = 0; i < n; ++i)
+    for (int i = 0; i < n; i++)
     {
-        int dif = mid - i > 0 ? mid - i : i - mid;
-
-        for (int j = 0; j < n / 2 - dif; ++j)
+        for (int j = 0; j < n; j++)
         {
-            printf("-");
-        }
-
-        if (dif == 0)
-        {
-            printf("X");
-        }
-        else
-        {
-            if (i < mid)
+            if (i == j && i == mid)
+            {
+                printf("X");
+            }
+            else if (i == j)
             {
                 printf("\\");
             }
-            else
+            else if (i == n - 1 - j)
             {
                 printf("/");
             }
-
-            for (int j = 0; j < dif * 2 - 1; ++j)
+            else
             {
                 printf("-");
             }
-
-            if (i < mid)
-            {
-                printf("/");
-            }
-            else
-            {
-                printf("\\");
-            }
-        }
-
-        for (int j = 0; j < n / 2 - dif; ++j)
-        {
-            printf("-");
         }
 
         printf("\n");
