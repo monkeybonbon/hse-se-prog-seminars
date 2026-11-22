@@ -17,7 +17,7 @@ int main(void) {
         a[l] = a[l - 1];
     }
     a[k]=x;
-    n++; // увеличиваем количество элементов
+    n++; 
   
     for (int j = 0; j < n; j++) {
         printf("%d ", a[j]);
