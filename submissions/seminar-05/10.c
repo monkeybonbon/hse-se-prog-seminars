@@ -1,0 +1,44 @@
+#include <stdio.h>
+
+int main(void) {
+    int n;
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        return 0;
+    }
+
+    int a[n][n];
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &a[i][j]);
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            int temp = a[i][j];
+            a[i][j] = a[j][i];
+            a[j][i] = temp;
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n / 2; j++) {
+            int temp = a[i][j];
+            a[i][j] = a[i][n - 1 - j];
+            a[i][n - 1 - j] = temp;
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (j > 0) {
+                printf(" ");
+            }
+            printf("%d", a[i][j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
