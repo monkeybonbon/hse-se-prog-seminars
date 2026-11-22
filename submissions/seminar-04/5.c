@@ -1,0 +1,30 @@
+#include <stdio.h>
+
+int main(void) {
+    int n;
+    int a[101];
+    int x, k;
+
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &a[i]);
+    }
+
+    scanf("%d %d", &x, &k);
+
+    for (int i = n; i > k; i--) {
+        a[i] = a[i - 1];
+    }
+
+    a[k] = x;
+    n++;
+
+    for (int i = 0; i < n; i++) {
+        printf("%d ", a[i]);
+    }
+
+    printf("\n");
+
+    return 0;
+}
