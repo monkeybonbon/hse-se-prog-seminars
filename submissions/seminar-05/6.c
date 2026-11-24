@@ -34,7 +34,7 @@ int main(void)
         }
         printf(" %d", sum_col);
     }
-    printf("\n");
+    ` printf("\n");
 
     return 0;
 }
