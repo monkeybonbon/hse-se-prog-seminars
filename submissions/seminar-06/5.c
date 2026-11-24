@@ -5,17 +5,17 @@ unsigned digit_sum(unsigned n){
         return n;
     }
 
-    int sum = n % 10 + digit_sum(n / 10);
+    unsigned sum = n % 10 + digit_sum(n / 10);
 
     return sum;
 
 }
 
-int main(void){
-    int res = digit_sum(12345);
+// int main(void){
+//     unsigned res = digit_sum(12345);
 
-    printf("%d\n", res);
+//     printf("%d\n", res);
 
-    return 0;
-}
+//     return 0;
+// }
 
