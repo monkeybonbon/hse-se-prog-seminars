@@ -6,12 +6,17 @@ int main(void) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++){
             scanf("%c", &a[i][j]);
-            if (a[i][j] == "R") {
+            if (a[i][j] == 'R') {
                 first = i;
                 second = j;
             }
         }
     }
+
+    if (first == -1) {
+        return 1;
+    }
+
     for (int i = 0; i < 8; i++) {
         a[first][i] = '*';
     }
@@ -20,8 +25,10 @@ int main(void) {
     }
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            printf("%d", a[i][j]);
+            printf("%c", a[i][j]);
         }
+        printf("\n");
     }
+    return 0;
 
 }
