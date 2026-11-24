@@ -17,8 +17,3 @@ int main(void){
     return 0;
 }
 
-/*
-digit_sum(12345) → 15
-digit_sum(9007)  → 16
-digit_sum(0)     → 0
-*/

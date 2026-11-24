@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stddef.h>
+
 
 size_t longest_run(const int a[], size_t n) {
     if (n == 0)
