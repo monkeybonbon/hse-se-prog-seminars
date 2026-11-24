@@ -1,2 +1,2 @@
-A 5 A 3 A 1 B 1 B 3 B 5
+A5 A3 A1 B1 B3 B5
 
