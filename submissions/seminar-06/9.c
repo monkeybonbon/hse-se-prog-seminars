@@ -14,6 +14,7 @@ double fast_pow(double x, unsigned n) {
     return res * res;
 }
 
+
 int main(void) {
     double x = 2;
     unsigned n = 5;
