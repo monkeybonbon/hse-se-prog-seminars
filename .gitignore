@@ -9,3 +9,4 @@ playwright-report/
 *.tsbuildinfo
 .env*
 *answers*
+.idea/
