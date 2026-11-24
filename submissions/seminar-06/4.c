@@ -1,4 +1,4 @@
-#include <stdio.h>
+// #include <stdio.h>
 
 size_t longest_run(const int a[], size_t n) {
     if (n==0) return 0;
@@ -14,8 +14,8 @@ size_t longest_run(const int a[], size_t n) {
     return c;
 }
 
-int main(void) {
-    int a[] = {};
-    size_t ans = longest_run(a, 0);
-    printf("%zu", ans);
-}
+// int main(void) {
+//     int a[] = {};
+//     size_t ans = longest_run(a, 0);
+//     printf("%zu", ans);
+// }
