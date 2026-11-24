@@ -9,12 +9,11 @@ void update(int *a, int *b)
 int main(void)
 {
 
-    // int x = 3, y = 7;
-    //  update(&x, &y);
-    //  printf("%d %d\n", x, y);
-    //  Выведет: 10 3
+    int x = 3, y = 7;
+    update(&x, &y);
+    printf("%d %d\n", x, y); // 10 3
 
-    int x = 3;
+    x = 3;
     update(&x, &x);
     printf("%d\n", x);
     // Выведет: 0
