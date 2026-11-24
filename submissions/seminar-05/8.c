@@ -12,8 +12,6 @@ int main(void) {
     for(int i = 0; i < 8; i++) {
         for(int j = 0; j < 8; j++) {
             if (a[i][j] == "R"){
-                a[i][j+1] = "*";
-                a[i+1][j] = "*";
             }
         }
     }
