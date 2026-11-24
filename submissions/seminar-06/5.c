@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 unsigned digit_sum(unsigned n){
-    if (n > 0 || n <= 9){
+    if (n > 0 && n <= 9){
         return n;
     }
 
