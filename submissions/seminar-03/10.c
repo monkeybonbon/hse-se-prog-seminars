@@ -1,20 +1,17 @@
 #include <stdio.h>
 
-int main()
-{
+int main(void) {
     int a;
     scanf("%d", &a);
 
-    if (a == 0)
-    {
+    if (a == 0) {
         printf("0\n");
         return 0;
     }
 
     int c = a;
     int n = 0;
-    while (c > 0)
-    {
+    while (c > 0) {
         c /= 10;
         ++n;
     }
@@ -24,8 +21,7 @@ int main()
         dec *= 10;
     }
 
-    for (int i = 0; i < n; i++)
-    {
+    for (int i = 0; i < n; i++) {
         printf("%d ", a / dec % 10);
         dec /= 10;
     }

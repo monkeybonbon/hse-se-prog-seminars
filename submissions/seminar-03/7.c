@@ -1,17 +1,14 @@
 #include <stdio.h>
 
-int main()
-{
+int main(void) {
     int n;
     int m;
     scanf("%d", &n);
     scanf("%d", &m);
-    for (int i = 0; i < n - 1; i++)
-    {
+    for (int i = 0; i < n - 1; i++) {
         int t;
         scanf("%d", &t);
-        if (t < m)
-        {
+        if (t < m) {
             m = t;
         }
     }

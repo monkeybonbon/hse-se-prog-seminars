@@ -1,16 +1,17 @@
 #include <stdio.h>
 
-int main() {
+int main(void) {
     int n;
     int arr[100];
 
     scanf("%d", &n);
 
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; i++) {
         scanf("%d", &arr[i]);
     }
 
-    int x, k;
+    int x;
+    int k;
     scanf("%d%d", &x, &k);
 
     for (int i = n; i > k; --i) {
@@ -18,7 +19,7 @@ int main() {
     }
     arr[k] = x;
 
-    for (int i = 0; i < n + 1; ++i) {
+    for (int i = 0; i < n + 1; i++) {
         printf("%d ", arr[i]);
     }
 

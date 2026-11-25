@@ -1,22 +1,26 @@
 #include <stdio.h>
 
-int main() {
-    int n, m;
+int main(void) {
+    int n;
+    int m;
     scanf("%d%d", &n, &m);
     int arr[n][m];
 
-    int l = 0, r = m - 1, t = 0, b = n - 1;
+    int l = 0;
+    int r = m - 1;
+    int t = 0;
+    int b = n - 1;
 
     int c = 1;
     while (l <= r && t <= b) {
-        for (int j = l; j <= r; ++j)
+        for (int j = l; j <= r; j++)
             arr[t][j] = c++;
 
         if (t == b) {
             break;
         }
 
-        for (int i = t + 1; i <= b; ++i)
+        for (int i = t + 1; i <= b; i++)
             arr[i][r] = c++;
 
         if (l == r) {
@@ -35,8 +39,8 @@ int main() {
         --b;
     }
 
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
             printf("%d ", arr[i][j]);
         }
         printf("\n");

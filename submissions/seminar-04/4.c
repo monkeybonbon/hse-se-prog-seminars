@@ -1,12 +1,12 @@
 #include <stdio.h>
 
-int main() {
+int main(void) {
     int n;
     int arr[100];
 
     scanf("%d", &n);
 
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; i++) {
         scanf("%d", &arr[i]);
     }
 
@@ -15,7 +15,7 @@ int main() {
 
     arr[n] = x;
 
-    for (int i = 0; i < n + 1; ++i) {
+    for (int i = 0; i < n + 1; i++) {
         printf("%d ", arr[i]);
     }
 

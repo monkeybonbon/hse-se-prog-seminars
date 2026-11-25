@@ -1,7 +1,8 @@
 #include <stdio.h>
 
 int main(void) {
-    int a, b;
+    int a;
+    int b;
     scanf("%d %d", &a, &b);
 
     int *a_ptr = &a;

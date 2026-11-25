@@ -1,11 +1,9 @@
 #include <stdio.h>
 
-int main()
-{
+int main(void) {
     int t;
     int s = 0;
-    do
-    {
+    do {
         scanf("%d", &t);
         s += t;
     } while (t != 0);
